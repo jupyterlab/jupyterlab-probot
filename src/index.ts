@@ -1,6 +1,8 @@
 
 import * as fs from 'fs';
 
+import { JSONObject } from '@lumino/coreutils';
+
 import { Probot } from "probot";
 
 /**
@@ -12,6 +14,27 @@ interface RunData {
 
 
 export = (app: Probot) => {
+
+  app.on('pull_request.opened', async (context) => {
+    const head = context.payload.pull_request.head;
+    const ref = encodeURIComponent(head.ref);
+    const user = head.user.login;
+    const repo = head.repo.name;
+
+    let urlSuffix = '';
+    const config = await context.config('jupyterlab-probot.yml') as JSONObject;
+    if (config.binderUrlSuffix) {
+      urlSuffix = config.binderUrlSuffix as string;
+    }
+    if (!config.addBinderLink) {
+      console.log(`Skipping binder link for ${repo}`);
+      return;
+    }
+    const comment = `Thanks for making a pull request to ${repo}!
+To try out this branch on [binder](https://mybinder.org), follow this link: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/${user}/${repo}/${ref}${urlSuffix})`
+    const issueComment = context.issue({ body: comment });
+    await context.octokit.issues.createComment(issueComment);
+  });
 
   app.on("workflow_run.requested", async (context) => {
     const run = context.payload.workflow_run;

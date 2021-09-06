@@ -22,6 +22,19 @@ docker build -t jupyterlab-probot .
 docker run -e APP_ID=<app-id> -e PRIVATE_KEY=<pem-value> jupyterlab-probot
 ```
 
+## Configuration
+
+Create a `.github/jupyterlab-probot.yml` in the target repository.
+
+Example:
+
+```json
+{
+    "useBinderLink": true,
+    "binderUrlSuffix": "?urlpath=lab-dev"
+}
+```
+
 ## Contributing
 
 If you have suggestions for how jupyterlab-probot could be improved, or want to report a bug, open an issue! We'd love all and any contributions.
