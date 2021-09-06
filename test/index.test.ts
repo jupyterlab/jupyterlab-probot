@@ -5,6 +5,7 @@ import { Probot, ProbotOctokit } from "probot";
 // Requiring our fixtures
 import duplicatePushes from './fixtures/duplicate_pushes.json';
 import duplicatePRs from './fixtures/duplicate_pull_requests.json';
+import openPREvent from './fixtures/pull_request.opened.json';
 
 const fs = require("fs");
 const path = require("path");
@@ -30,6 +31,59 @@ describe("My Probot app", () => {
     });
     // Load our app into probot
     probot.load(myProbotApp);
+  });
+
+  test('does not create a comment with a binder link', async () => {
+
+    const config = {};
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+    // Receive a webhook event
+    await probot.receive({ name: "pull_request", payload: openPREvent });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
+  });
+
+  test('creates a comment with a binder link', async () => {
+
+    const config = { addBinderLink: true, binderUrlSuffix: 'foo' };
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+    .post("/repos/hiimbex/testing-things/issues/36/comments")
+    .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ name: "pull_request", payload: openPREvent });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
   });
 
   test("cancels duplicate push runs", async () => {
@@ -96,7 +150,7 @@ describe("My Probot app", () => {
     expect(mock.pendingMocks()).toStrictEqual([]);
   });
 
-test("no-op when there are no duplicate pull_request runs", async () => {
+  test("no-op when there are no duplicate pull_request runs", async () => {
 
     const mock = nock("https://api.github.com")
       .persist()

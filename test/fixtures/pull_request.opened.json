@@ -1,0 +1,25 @@
+{
+  "action": "opened",
+  "number": 36,
+  "pull_request": {
+    "number": 36,
+    "head": {
+      "ref": "hiimbex-patch-1",
+      "user": {
+        "login": "hiimbex"
+      },
+      "repo": {
+        "name": "testing-things"
+      }
+    }
+  },
+  "repository": {
+    "name": "testing-things",
+    "owner": {
+        "login": "hiimbex"
+    }
+  },
+  "installation": {
+    "id": 2
+  }
+}
