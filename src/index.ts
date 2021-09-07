@@ -1,15 +1,42 @@
 
+import Ajv, {JSONSchemaType} from 'ajv';
+
 import * as fs from 'fs';
 
-import { JSONObject } from '@lumino/coreutils';
+import { Context, Probot} from "probot";
 
-import { Probot } from "probot";
 
 /**
  * An interface used to capture workflow run data for processing.
  */
 interface RunData {
   id: number;
+}
+
+
+/**
+ * An interface for bot config data.  Should mirror the JSON schema.
+ */
+interface Config {
+  binderUrlSuffix?: string;
+  addBinderLink?: boolean;
+}
+
+
+/**
+ * Get the parsed config data given a probot context.
+ */
+async function getConfig(context: Context<any>): Promise<Config> {
+  const config = await context.config('jupyterlab-probot.yml');
+  const ajv = new Ajv({ useDefaults: true });
+  const schema: JSONSchemaType<Config> = require('../schema.json');
+  const validate = ajv.compile(schema);
+  if (validate(config)) {
+    return config;
+  } else {
+    console.error(validate.errors);
+    return {};
+  }
 }
 
 
@@ -21,10 +48,10 @@ export = (app: Probot) => {
     const user = head.user.login;
     const repo = head.repo.name;
 
-    let urlSuffix = '';
-    const config = await context.config('jupyterlab-probot.yml') as JSONObject;
+    let urlSuffix = ''
+    const config = await getConfig(context);
     if (config.binderUrlSuffix) {
-      urlSuffix = config.binderUrlSuffix as string;
+      urlSuffix = config.binderUrlSuffix;
     }
     if (!config.addBinderLink) {
       console.log(`Skipping binder link for ${repo}`);
