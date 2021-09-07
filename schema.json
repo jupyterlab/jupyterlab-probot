@@ -1,0 +1,18 @@
+{
+  "title": "JupyterLab Probot Configuration",
+  "description": "JupyterLab Probo configuration metadata",
+  "properties": {
+    "addBinderLink": {
+      "title": "Add Binder Link",
+      "description": "Add a binder link PR comment",
+      "type": "boolean"
+    },
+    "binderUrlSuffix": {
+      "title": "Binder URL Suffix",
+      "description": "Suffix for Binder URL",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}
