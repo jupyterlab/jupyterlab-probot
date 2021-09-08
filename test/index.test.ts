@@ -86,6 +86,32 @@ describe("My Probot app", () => {
 
   });
 
+    test('handles bad config', async () => {
+
+    const config = { addBinderLink: true, binderUrlSuffix: 1 };
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+
+    // Receive a webhook event
+    await probot.receive({ name: "pull_request", payload: openPREvent });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
+  });
+
   test("cancels duplicate push runs", async () => {
 
     const mock = nock("https://api.github.com")
