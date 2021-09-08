@@ -28,11 +28,19 @@ Create a `.github/jupyterlab-probot.yml` in the target repository.
 
 Example:
 
-```json
-{
-    "useBinderLink": true,
-    "binderUrlSuffix": "?urlpath=lab-dev"
-}
+```yaml
+useBinderLink: true
+binderUrlSuffix: "?urlpath=lab-dev"
+```
+
+## Deploying
+
+See heroku instructions from [probot](https://probot.github.io/docs/deployment/#heroku).
+
+```bash
+git push heroku main
+heroku config:set LOG_LEVEL=trace
+heroku logs --tail
 ```
 
 ## Contributing
