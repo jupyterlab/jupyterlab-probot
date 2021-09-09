@@ -29,7 +29,7 @@ Create a `.github/jupyterlab-probot.yml` in the target repository.
 Example:
 
 ```yaml
-useBinderLink: true
+addBinderLink: true
 binderUrlSuffix: "?urlpath=lab-dev"
 ```
 
