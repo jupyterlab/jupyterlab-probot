@@ -97,7 +97,7 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
 
     if (event_type === "workflow_dispatch") {
       console.log('\n--------------------------------');
-      console.log('Skipping workflow_dispatch run');
+      console.log('Ignoring workflow_dispatch run');
       console.log('--------------------------------\n');
     }
 
