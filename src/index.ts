@@ -99,6 +99,7 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
       console.log('\n--------------------------------');
       console.log('Ignoring workflow_dispatch run');
       console.log('--------------------------------\n');
+      return;
     }
 
     if (process.env.DEBUG == 'true') {
