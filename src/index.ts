@@ -95,6 +95,12 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
     const duplicates: RunData[] = [];
     const messages: string[] = [];
 
+    if (event_type === "workflow_dispatch") {
+      console.log('\n--------------------------------');
+      console.log('Skipping workflow_dispatch run');
+      console.log('--------------------------------\n');
+    }
+
     if (process.env.DEBUG == 'true') {
       fs.writeFileSync("outputs.txt", "\n\n" + JSON.stringify(context.payload) + "\n", { flag: "a" });
     }
