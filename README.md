@@ -31,6 +31,7 @@ Example:
 ```yaml
 addBinderLink: true
 binderUrlSuffix: "?urlpath=lab-dev"
+triageLabel: "status:Needs Triage"
 ```
 
 ## Deploying
