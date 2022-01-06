@@ -41,14 +41,6 @@ describe("My Probot app", () => {
     const configBuffer = Buffer.from(JSON.stringify(config));
 
     const mock = nock("https://api.github.com")
-      .persist()
-      .post("/app/installations/2/access_tokens")
-      .reply(200, {
-        token: "test",
-        permissions: {
-          actions: "write"
-        },
-      })
 
     .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
     .reply(200, configBuffer.toString())
@@ -57,7 +49,7 @@ describe("My Probot app", () => {
     .reply(200);
 
     // Receive a webhook event
-    await probot.receive({ name: "issue", payload: openedIssueNoLabel });
+    await probot.receive({ name: "issues", payload: openedIssueNoLabel });
 
     expect(mock.pendingMocks()).toStrictEqual([]);
   });
@@ -68,23 +60,12 @@ describe("My Probot app", () => {
     const configBuffer = Buffer.from(JSON.stringify(config));
 
     const mock = nock("https://api.github.com")
-      .persist()
-      .post("/app/installations/2/access_tokens")
-      .reply(200, {
-        token: "test",
-        permissions: {
-          actions: "write"
-        },
-      })
 
     .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
-    .reply(200, configBuffer.toString())
-
-    .post("/repos/hiimbex/testing-things/issues/42/labels")
-    .reply(200);
+    .reply(200, configBuffer.toString());
 
     // Receive a webhook event
-    await probot.receive({ name: "issue", payload: openedIssue });
+    await probot.receive({ name: "issues", payload: openedIssue });
 
     expect(mock.pendingMocks()).toStrictEqual([]);
   });

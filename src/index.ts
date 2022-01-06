@@ -59,7 +59,11 @@ export = (app: Probot) => {
     const config = await getConfig(context);
     const triageLabel = config['triageLabel'] ?? 'status:Needs Triage';
 
-    await context.octokit.issues.addLabels(context.issue({ labels: [triageLabel] }))
+    if (!(issue.labels ?? []).map((label) => label.name).includes(triageLabel)) {
+      await context.octokit.issues.addLabels(
+        context.issue({ labels: [triageLabel] })
+      );
+    }
   });
 
   app.on('pull_request.opened', async (context) => {
