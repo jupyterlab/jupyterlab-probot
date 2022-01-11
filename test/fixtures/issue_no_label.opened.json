@@ -1,0 +1,25 @@
+{
+  "action": "opened",
+  "issue": {
+    "number": 42,
+    "title": "Spelling error in the README file",
+    "user": {
+      "login": "hiimbex"
+    },
+    "state": "open",
+    "locked": false,
+    "comments": 0,
+    "created_at": "2019-05-15T15:20:18Z",
+    "updated_at": "2019-05-15T15:20:18Z",
+    "closed_at": null,
+    "author_association": "OWNER",
+    "body": "It looks like you accidently spelled 'commit' with two 't's."
+  },
+  "changes": {},
+  "repository": {
+    "name": "testing-things",
+    "owner": {
+      "login": "hiimbex"
+    }
+  }
+}

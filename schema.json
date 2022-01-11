@@ -11,6 +11,11 @@
       "title": "Binder URL Suffix",
       "description": "Suffix for Binder URL",
       "type": "string"
+    },
+    "triageLabel": {
+      "title": "Triage label",
+      "description": "Triage label to apply on newly opened issues",
+      "type": "string"
     }
   },
   "additionalProperties": false,

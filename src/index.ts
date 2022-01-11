@@ -1,9 +1,9 @@
 
-import Ajv, {JSONSchemaType} from 'ajv';
+import Ajv, { JSONSchemaType } from 'ajv';
 
 import * as fs from 'fs';
 
-import { Context, Probot} from "probot";
+import { Context, Probot } from "probot";
 
 
 /**
@@ -20,6 +20,7 @@ interface RunData {
 interface Config {
   binderUrlSuffix?: string;
   addBinderLink?: boolean;
+  triageLabel?: string;
 }
 
 
@@ -47,6 +48,23 @@ async function getConfig(context: Context<any>): Promise<Config> {
 
 
 export = (app: Probot) => {
+
+  /**
+   * Add triage label to opened issues
+   */
+  app.on('issues.opened', async (context) => {
+    const { payload } = context;
+    const { issue } = payload;
+
+    const config = await getConfig(context);
+    const triageLabel = config['triageLabel'] ?? 'status:Needs Triage';
+
+    if (!(issue.labels ?? []).map((label) => label.name).includes(triageLabel)) {
+      await context.octokit.issues.addLabels(
+        context.issue({ labels: [triageLabel] })
+      );
+    }
+  });
 
   app.on('pull_request.opened', async (context) => {
     const head = context.payload.pull_request.head;
@@ -106,7 +124,7 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
       fs.writeFileSync("outputs.txt", "\n\n" + JSON.stringify(context.payload) + "\n", { flag: "a" });
     }
 
-    const statuses =  ["queued", "in_progress", "requested"];
+    const statuses = ["queued", "in_progress", "requested"];
     await Promise.all(statuses.map(async (status) => {
       const resp = await context.octokit.rest.actions.listWorkflowRuns({
         owner,

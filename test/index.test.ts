@@ -6,6 +6,8 @@ import { Probot, ProbotOctokit } from "probot";
 import duplicatePushes from './fixtures/duplicate_pushes.json';
 import duplicatePRs from './fixtures/duplicate_pull_requests.json';
 import openPREvent from './fixtures/pull_request.opened.json';
+import openedIssueNoLabel from './fixtures/issue_no_label.opened.json';
+import openedIssue from './fixtures/issue_labelled.opened.json';
 
 const fs = require("fs");
 const path = require("path");
@@ -31,6 +33,41 @@ describe("My Probot app", () => {
     });
     // Load our app into probot
     probot.load(myProbotApp);
+  });
+
+  test('add triage label to opened issue', async () => {
+
+    const config = {};
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+    .post("/repos/hiimbex/testing-things/issues/42/labels")
+    .reply(200);
+
+    // Receive a webhook event
+    await probot.receive({ name: "issues", payload: openedIssueNoLabel });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+  });
+
+  test('does not add triage label to opened issue that have it already', async () => {
+
+    const config = {};
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString());
+
+    // Receive a webhook event
+    await probot.receive({ name: "issues", payload: openedIssue });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
   });
 
   test('does not create a comment with a binder link', async () => {
