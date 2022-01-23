@@ -50,14 +50,18 @@ async function getConfig(context: Context<any>): Promise<Config> {
 export = (app: Probot) => {
 
   /**
-   * Add triage label to opened issues
+   * Add triage label to opened issues, if one is specified
    */
   app.on('issues.opened', async (context) => {
     const { payload } = context;
     const { issue } = payload;
 
     const config = await getConfig(context);
-    const triageLabel = config['triageLabel'] ?? 'status:Needs Triage';
+    const triageLabel = config['triageLabel'];
+
+    if (triageLabel === undefined) {
+      return;
+    }
 
     if (!(issue.labels ?? []).map((label) => label.name).includes(triageLabel)) {
       await context.octokit.issues.addLabels(

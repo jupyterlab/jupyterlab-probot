@@ -37,7 +37,9 @@ describe("My Probot app", () => {
 
   test('add triage label to opened issue', async () => {
 
-    const config = {};
+    const config = {
+      triageLabel: 'status:Needs Triage'
+    };
     const configBuffer = Buffer.from(JSON.stringify(config));
 
     const mock = nock("https://api.github.com")
@@ -54,9 +56,27 @@ describe("My Probot app", () => {
     expect(mock.pendingMocks()).toStrictEqual([]);
   });
 
-  test('does not add triage label to opened issue that have it already', async () => {
+  test('does not add triage label when config lacks triageLabel', async () => {
 
     const config = {};
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString());
+
+    // Receive a webhook event
+    await probot.receive({ name: "issues", payload: openedIssueNoLabel });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+  });
+
+  test('does not add triage label to opened issue that has it already', async () => {
+
+    const config = {
+      triageLabel: 'status:Needs Triage'
+    };
     const configBuffer = Buffer.from(JSON.stringify(config));
 
     const mock = nock("https://api.github.com")
