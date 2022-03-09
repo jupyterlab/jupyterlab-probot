@@ -117,9 +117,9 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
     const duplicates: RunData[] = [];
     const messages: string[] = [];
 
-    if (event_type === "workflow_dispatch") {
+    if (["issue_comment", "workflow_dispatch"].includes(event_type)) {
       console.log('\n--------------------------------');
-      console.log('Ignoring workflow_dispatch run');
+      console.log(`Ignoring ${event_type} run`);
       console.log('--------------------------------\n');
       return;
     }
