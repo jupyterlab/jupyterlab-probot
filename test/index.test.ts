@@ -8,6 +8,7 @@ import duplicatePRs from './fixtures/duplicate_pull_requests.json';
 import openPREvent from './fixtures/pull_request.opened.json';
 import openedIssueNoLabel from './fixtures/issue_no_label.opened.json';
 import openedIssue from './fixtures/issue_labelled.opened.json';
+import workflowData from './fixtures/workflow_data.json';
 
 const fs = require("fs");
 const path = require("path");
@@ -16,6 +17,7 @@ const privateKey = fs.readFileSync(
   path.join(__dirname, "fixtures/mock-cert.pem"),
   "utf-8"
 );
+
 
 describe("My Probot app", () => {
   let probot: any;
@@ -181,6 +183,9 @@ describe("My Probot app", () => {
         },
       })
 
+      .get("/repos/hiimbex/testing-things/actions/workflows/8438617")
+      .reply(200, workflowData)
+
       .get("/repos/hiimbex/testing-things/actions/workflows/8438617/runs?branch=hiimbex-patch-2&status=requested&event=push")
       .reply(200, duplicatePushes.requested_response)
 
@@ -211,6 +216,9 @@ describe("My Probot app", () => {
           actions: "write"
         },
       })
+
+      .get("/repos/hiimbex/testing-things/actions/workflows/8439041")
+      .reply(200, workflowData)
 
       .get("/repos/hiimbex/testing-things/actions/workflows/8439041/runs?branch=hiimbex-patch-2&status=requested&event=pull_request")
       .reply(200, duplicatePRs.requested_response)
@@ -245,6 +253,9 @@ describe("My Probot app", () => {
         },
       })
 
+      .get("/repos/hiimbex/testing-things/actions/workflows/8439041")
+      .reply(200, workflowData)
+
       .get("/repos/hiimbex/testing-things/actions/workflows/8439041/runs?branch=hiimbex-patch-2&status=requested&event=pull_request")
       .reply(200, duplicatePRs.requested_response)
 
@@ -253,6 +264,28 @@ describe("My Probot app", () => {
 
       .get("/repos/hiimbex/testing-things/actions/workflows/8439041/runs?branch=hiimbex-patch-2&status=in_progress&event=pull_request")
       .reply(200, duplicatePRs.requested_response)
+
+    // Receive a webhook event
+    await probot.receive({ name: "workflow_run", payload: duplicatePRs.event });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+  });
+
+  test("ignore enforce-label workflows", async () => {
+    const resp = {...workflowData, path: ".github/workflows/enforce-label.yaml"}
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+      .get("/repos/hiimbex/testing-things/actions/workflows/8439041")
+      .reply(200, resp)
 
     // Receive a webhook event
     await probot.receive({ name: "workflow_run", payload: duplicatePRs.event });

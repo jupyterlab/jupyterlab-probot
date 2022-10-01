@@ -124,6 +124,18 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
       return;
     }
 
+    const resp = await context.octokit.rest.actions.getWorkflow({
+      owner,
+      repo,
+      workflow_id
+    });
+    if (resp.data.path.indexOf('enforce-label') != -1) {
+      console.log('\n--------------------------------');
+      console.log('Ignore enforce label run');
+      console.log('--------------------------------\n');
+      return;
+    }
+
     if (process.env.DEBUG == 'true') {
       fs.writeFileSync("outputs.txt", "\n\n" + JSON.stringify(context.payload) + "\n", { flag: "a" });
     }
