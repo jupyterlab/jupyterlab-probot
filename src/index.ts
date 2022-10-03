@@ -148,11 +148,17 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
       }
       let runs = resp.data.workflow_runs.map(run => {
         return {
-          id: run.id
+          id: run.id,
+          created_at: Date.parse(run.created_at)
         }
       });
       // Make sure the triggered run is not listed
-      runs = runs.filter(data => data.id !== run.id);
+      runs = runs.filter(data => {
+        if (data.id === run.id) {
+          return false;
+        }
+        return Date.parse(run.created_at) > data.created_at;
+      });
       duplicates.push(...runs);
     }));
 

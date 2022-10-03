@@ -193,7 +193,6 @@ describe("My Probot app", () => {
       .post("/repos/hiimbex/testing-things/actions/runs/1179077215/cancel")
       .reply(202, {})
 
-
     // Receive a webhook event
     await probot.receive({ name: "workflow_run", payload: duplicatePushes.event });
 
@@ -222,9 +221,6 @@ describe("My Probot app", () => {
       .reply(200, duplicatePRs.in_progress_response)
 
       .post("/repos/hiimbex/testing-things/actions/runs/1179072529/cancel")
-      .reply(202, {})
-
-      .post("/repos/hiimbex/testing-things/actions/runs/1179077219/cancel")
       .reply(202, {});
 
     // Receive a webhook event
