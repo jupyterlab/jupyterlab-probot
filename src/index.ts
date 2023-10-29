@@ -1,7 +1,7 @@
 
 import Ajv, { JSONSchemaType } from 'ajv';
 
-import * as fs from 'fs';
+const fs = require("fs");
 
 import { Context, Probot } from "probot";
 
