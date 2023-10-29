@@ -32,7 +32,17 @@ Example:
 addBinderLink: true
 binderUrlSuffix: "?urlpath=lab-dev"
 triageLabel: "status:Needs Triage"
+botUser: "my-bot-name"
 ```
+
+## Bot Usage
+
+By default, the `botUser` is `jupyterlab-bot`.  If you use a different `botUser`, replace it below.
+
+
+### Close and reopen an issue or pull request.
+
+`@jupyterlab-bot, please restart ci`
 
 ## Deploying
 

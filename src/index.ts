@@ -21,6 +21,7 @@ interface Config {
   binderUrlSuffix?: string;
   addBinderLink?: boolean;
   triageLabel?: string;
+  botUser?: string;
 }
 
 
@@ -143,8 +144,12 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
         messages.push(String(resp));
         return;
       }
+      if (typeof resp.data === "string") {
+        resp.data = JSON.parse(resp.data)
+      }
+
       if (process.env.DEBUG == 'true') {
-        fs.writeFileSync("outputs.txt", JSON.stringify(resp) + "\n", { flag: "a" });
+        fs.writeFileSync("outputs.txt", "\nhi hi\n" + JSON.stringify(resp) + "\n", { flag: "a" });
       }
       let runs = resp.data.workflow_runs.map(run => {
         return {
@@ -191,6 +196,55 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
     console.log(`    event_type: ${event_type}`)
     messages.forEach(message => console.log(message));
     console.log("Finished handling duplicate runs")
+    console.log('--------------------------------\n')
+  });
+
+  app.on('issue_comment.created', async (context) => {
+    const repository = context.payload.repository;
+    const owner = repository.owner.login;
+    const repo = repository.name;
+    const issue_number = context.payload.issue.number;
+    const messages: string[] = [];
+
+    const body = context.payload.comment.body.trim();
+    const config = await getConfig(context);
+    const commentUser = config.botUser;
+    const expected = `@${commentUser}, please restart ci`;
+    if (body == expected) {
+      let resp = await context.octokit.rest.issues.update({
+        owner,
+        repo,
+        issue_number,
+        state: 'closed'
+      });
+      /* istanbul ignore if */
+      if (resp.status !== 200) {
+        messages.push(String(resp));
+      } else {
+        resp = await context.octokit.rest.issues.update({
+          owner,
+          repo,
+          issue_number,
+          state: 'open'
+        });
+        if (resp.status !== 200) {
+          messages.push(String(resp));
+        } else {
+          messages.push('Successfully closed/opened!')
+        }
+      }
+    } else {
+      messages.push('Ignored')
+    }
+
+    console.log('\n--------------------------------');
+    console.log('Handling Issue Comment Created:');
+    console.log(`    repo: ${owner}/${repo}`);
+    console.log(`    number: ${issue_number}`);
+    console.log(`    config:`);
+    console.log(config);
+    messages.forEach(message => console.log(message));
+    console.log("Finished handling of issue comment created")
     console.log('--------------------------------\n')
   });
 
