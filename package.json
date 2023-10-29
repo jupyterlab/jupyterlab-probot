@@ -15,7 +15,7 @@
     "build": "tsc",
     "start": "probot run ./lib/index.js",
     "test": "jest",
-    "test:cov": "DEBUG=true; jest --collect-coverage -w 1",
+    "test:cov": "jest --clear-cache; DEBUG=true; jest --collect-coverage",
     "watch": "tsc -w"
   },
   "dependencies": {
