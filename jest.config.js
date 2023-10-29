@@ -15,4 +15,6 @@ module.exports = {
     }
   },
   coverageReporters: ["text","html"],
+  coverageProvider: 'v8',
+  maxWorkers: 2
 };
