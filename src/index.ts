@@ -149,7 +149,7 @@ To try out this branch on [binder](https://mybinder.org), follow this link: [![B
       }
 
       if (process.env.DEBUG == 'true') {
-        fs.writeFileSync("outputs.txt", "\nhi hi\n" + JSON.stringify(resp) + "\n", { flag: "a" });
+        fs.writeFileSync("outputs.txt", JSON.stringify(resp) + "\n", { flag: "a" });
       }
       let runs = resp.data.workflow_runs.map(run => {
         return {
