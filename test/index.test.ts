@@ -8,6 +8,7 @@ import duplicatePRs from './fixtures/duplicate_pull_requests.json';
 import openPREvent from './fixtures/pull_request.opened.json';
 import openedIssueNoLabel from './fixtures/issue_no_label.opened.json';
 import openedIssue from './fixtures/issue_labelled.opened.json';
+import issueComment from './fixtures/issue_comment.created.json';
 
 const fs = require("fs");
 const path = require("path");
@@ -254,6 +255,97 @@ describe("My Probot app", () => {
     await probot.receive({ name: "workflow_run", payload: duplicatePRs.event });
 
     expect(mock.pendingMocks()).toStrictEqual([]);
+  });
+
+  test("it should handle a restart comment", async () => {
+
+    const config = { addBinderLink: true };
+    const configBuffer = Buffer.from(JSON.stringify(config));
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+    .patch("/repos/hiimbex/testing-things/issues/18",{"state": "closed"})
+    .reply(200)
+
+    .patch("/repos/hiimbex/testing-things/issues/18", {"state": "open"})
+    .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ name: "issue_comment", payload: issueComment.event });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
+  });
+
+  test("it should ignore a non-comment", async () => {
+
+    const config = { addBinderLink: true };
+    const configBuffer = Buffer.from(JSON.stringify(config));
+    const payload = issueComment.event;
+    payload.comment.body = "ignore me";
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+    // Receive a webhook event
+    await probot.receive({ name: "issue_comment", payload });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
+  });
+
+  test("it should handle bot config for restart comment", async () => {
+
+    const config = { addBinderLink: true, botUser: 'snuffy' };
+    const configBuffer = Buffer.from(JSON.stringify(config));
+    const payload = issueComment.event;
+    payload.comment.body = "@snuffy, please restart ci";
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(200, configBuffer.toString())
+
+    .patch("/repos/hiimbex/testing-things/issues/18",{"state": "closed"})
+    .reply(200)
+
+    .patch("/repos/hiimbex/testing-things/issues/18", {"state": "open"})
+    .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ name: "issue_comment", payload });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
   });
 
   afterEach(() => {

@@ -15,12 +15,12 @@
     "build": "tsc",
     "start": "probot run ./lib/index.js",
     "test": "jest",
-    "test:cov": "DEBUG=true; jest --collect-coverage",
+    "test:cov": "DEBUG=true; jest --collect-coverage --clear-cache",
     "watch": "tsc -w"
   },
   "dependencies": {
     "ajv": "^8.6.2",
-    "probot": "^11.0.1"
+    "probot": "^12.3.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.19",

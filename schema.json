@@ -16,6 +16,12 @@
       "title": "Triage label",
       "description": "Triage label to apply on newly opened issues",
       "type": "string"
+    },
+    "botUser": {
+      "title": "Bot user name",
+      "description": "The name of the bot user for issue comments",
+      "type": "string",
+      "default": "jupyterlab-bot"
     }
   },
   "additionalProperties": false,
