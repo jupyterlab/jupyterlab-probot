@@ -29,10 +29,7 @@ interface Config {
  * Get the parsed config data given a probot context.
  */
 async function getConfig(context: Context<any>): Promise<Config> {
-  const config = await context.config('jupyterlab-probot.yml');
-  if (!config) {
-    return {};
-  }
+  const config = await context.config('jupyterlab-probot.yml') || {};
   const ajv = new Ajv({ useDefaults: true });
   const schema: JSONSchemaType<Config> = require('../schema.json');
   const validate = ajv.compile(schema);
