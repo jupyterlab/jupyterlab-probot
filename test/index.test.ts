@@ -288,6 +288,37 @@ describe("My Probot app", () => {
 
   });
 
+  test("it should handle a restart comment for no config", async () => {
+
+    const mock = nock("https://api.github.com")
+      .persist()
+      .post("/app/installations/2/access_tokens")
+      .reply(200, {
+        token: "test",
+        permissions: {
+          actions: "write"
+        },
+      })
+
+    .get("/repos/hiimbex/testing-things/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(404)
+
+    .get("/repos/hiimbex/.github/contents/.github%2Fjupyterlab-probot.yml")
+    .reply(404)
+
+    .patch("/repos/hiimbex/testing-things/issues/18",{"state": "closed"})
+    .reply(200)
+
+    .patch("/repos/hiimbex/testing-things/issues/18", {"state": "open"})
+    .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ name: "issue_comment", payload: issueComment.event });
+
+    expect(mock.pendingMocks()).toStrictEqual([]);
+
+  });
+
   test("it should ignore a non-comment", async () => {
 
     const config = { addBinderLink: true };
